@@ -157,9 +157,10 @@
         </div>
     </div>
 
-    <!-- Script inicializa lucide icons -->
+    <!-- Script inicializa lucide icons e expõe ao escopo global para módulos ES -->
     <script>
       lucide.createIcons();
+      window.lucide = lucide;
     </script>
     <script type="module" src="app.js"></script>
 </body>

@@ -524,3 +524,52 @@ th {
         padding: 1rem;
     }
 }
+
+@media (max-width: 640px) {
+    .glass-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card h2 {
+        font-size: 1.6rem;
+    }
+
+    .logo h1 {
+        font-size: 1.2rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    th, td {
+        padding: 0.6rem 0.3rem;
+        font-size: 0.8rem;
+    }
+
+    .btn-icon {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.6rem;
+    }
+
+    .card-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .form-card h2 {
+        font-size: 1.1rem;
+    }
+
+    .coin-icon {
+        width: 26px;
+        height: 26px;
+        font-size: 0.7rem;
+    }
+}
