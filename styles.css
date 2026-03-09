@@ -513,63 +513,124 @@ th {
 }
 
 /* ======== Responsive ======== */
-@media (max-width: 900px) {
+
+/* Tablet / Small Desktop */
+@media (max-width: 1100px) {
     .main-content {
         grid-template-columns: 1fr;
     }
     .hide-mobile {
         display: none;
     }
-    .container {
-        padding: 1rem;
+    .sidebar {
+        order: 2; /* Form goes below the table on tablet */
+    }
+    .portfolio-list {
+        order: 1;
     }
 }
 
-@media (max-width: 640px) {
+/* Small Tablet */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
     .glass-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.75rem;
         padding: 1rem;
     }
-
     .dashboard {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
-
     .stat-card h2 {
-        font-size: 1.6rem;
+        font-size: 1.8rem;
     }
-
-    .logo h1 {
-        font-size: 1.2rem;
-    }
-
     .card {
-        padding: 1rem;
+        padding: 1.2rem;
     }
-
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    table {
+        min-width: 480px;
+    }
     th, td {
-        padding: 0.6rem 0.3rem;
+        padding: 0.7rem 0.4rem;
+        font-size: 0.82rem;
+    }
+}
+
+/* Mobile Phone */
+@media (max-width: 480px) {
+    .container {
+        padding: 0.75rem;
+    }
+    .logo h1 {
+        font-size: 1.15rem;
+    }
+    .logo p {
+        font-size: 0.75rem;
+    }
+    .last-update {
+        font-size: 0.75rem;
+    }
+    .stat-card h2 {
+        font-size: 1.5rem;
+    }
+    .stat-header h3 {
+        font-size: 0.85rem;
+    }
+    .icon-wrapper {
+        width: 34px;
+        height: 34px;
+    }
+    .card {
+        padding: 0.9rem;
+        border-radius: 14px;
+    }
+    .card-header h2,
+    .form-card h2 {
+        font-size: 1.05rem;
+    }
+    .form-desc {
         font-size: 0.8rem;
     }
-
-    .btn-icon {
-        font-size: 0.75rem;
-        padding: 0.4rem 0.6rem;
+    .input-group input {
+        font-size: 0.9rem;
+        padding: 0.7rem 0.9rem 0.7rem 2.2rem;
     }
-
-    .card-header h2 {
-        font-size: 1.1rem;
+    .btn-primary {
+        font-size: 0.9rem;
+        padding: 0.8rem;
     }
-
-    .form-card h2 {
-        font-size: 1.1rem;
+    th, td {
+        padding: 0.55rem 0.3rem;
+        font-size: 0.78rem;
     }
-
     .coin-icon {
         width: 26px;
         height: 26px;
-        font-size: 0.7rem;
+        font-size: 0.65rem;
+    }
+    .btn-icon {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.55rem;
+    }
+    .stop-badge {
+        font-size: 0.65rem;
+        padding: 0.15rem 0.3rem;
+    }
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    .profit-values {
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 }
+
