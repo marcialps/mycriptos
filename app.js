@@ -7,13 +7,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebas
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  // ATENÇÃO: Substitua os placeholders abaixo pelas configurações reais do seu projeto Firebase
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_AUTH_DOMAIN",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_STORAGE_BUCKET",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-  appId: "SEU_APP_ID"
+    apiKey: "AIzaSyA6f1FiHCYOO3ei0itrSPMEi5eL2Kf6X1k",
+    authDomain: "mycriptos-46d36.firebaseapp.com",
+    projectId: "mycriptos-46d36",
+    storageBucket: "mycriptos-46d36.firebasestorage.app",
+    messagingSenderId: "263216274536",
+    appId: "1:263216274536:web:5ef0f3633307bbe72eafdd",
+    measurementId: "G-4HRPJS8FMP"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -26,36 +26,36 @@ let transactions = [];
 // Expand tracking
 let expandedRows = {};
 
-let currentPrices = {}; 
+let currentPrices = {};
 let isFetching = false;
 let isDataLoaded = false;
 
 // ======== Binance API Integration ========
 const fetchMarketPrices = async () => {
-    if(isFetching) return;
+    if (isFetching) return;
     isFetching = true;
-    
+
     const btnRefresh = document.getElementById('refreshPrices');
     btnRefresh.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i> Atualizando...';
     lucide.createIcons();
-    
+
     try {
         const response = await fetch('https://api.binance.com/api/v3/ticker/price');
         const data = await response.json();
-        
+
         data.forEach(item => {
-            if(item.symbol.endsWith('BRL') || item.symbol.endsWith('USDT')) {
+            if (item.symbol.endsWith('BRL') || item.symbol.endsWith('USDT')) {
                 currentPrices[item.symbol] = parseFloat(item.price);
             }
         });
-        
+
         const usdPriceItem = data.find(i => i.symbol === 'USDTBRL');
         if (usdPriceItem) {
             currentPrices['USDBRL'] = parseFloat(usdPriceItem.price);
         }
 
         document.getElementById('lastUpdateText').textContent = new Date().toLocaleTimeString('pt-BR');
-        
+
         updateDashboard();
         renderTable();
     } catch (error) {
@@ -106,14 +106,14 @@ const parseBrFloat = (str) => {
 document.getElementById('coinPriceBuy').addEventListener('input', () => {
     const p = parseBrFloat(document.getElementById('coinPriceBuy').value);
     const i = parseBrFloat(document.getElementById('totalInvestedInput').value);
-    if(p > 0 && i > 0) {
+    if (p > 0 && i > 0) {
         document.getElementById('coinQuantity').value = (i / p).toFixed(8).replace('.', ',');
     }
 });
 document.getElementById('totalInvestedInput').addEventListener('input', () => {
     const p = parseBrFloat(document.getElementById('coinPriceBuy').value);
     const i = parseBrFloat(document.getElementById('totalInvestedInput').value);
-    if(p > 0 && i > 0) {
+    if (p > 0 && i > 0) {
         document.getElementById('coinQuantity').value = (i / p).toFixed(8).replace('.', ',');
     }
 });
@@ -121,15 +121,15 @@ document.getElementById('totalInvestedInput').addEventListener('input', () => {
 // Form Submit
 document.getElementById('addTransactionForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     let symbol = document.getElementById('coinSymbol').value.toUpperCase().trim();
-    if(symbol.endsWith('BRL')) symbol = symbol.replace('BRL', '');
-    if(symbol.endsWith('USDT')) symbol = symbol.replace('USDT', '');
-    
+    if (symbol.endsWith('BRL')) symbol = symbol.replace('BRL', '');
+    if (symbol.endsWith('USDT')) symbol = symbol.replace('USDT', '');
+
     const quantity = parseBrFloat(document.getElementById('coinQuantity').value);
     const buyPriceBRL = parseBrFloat(document.getElementById('coinPriceBuy').value);
     const investedVal = parseBrFloat(document.getElementById('totalInvestedInput').value);
-    
+
     const newTx = {
         id: generateId(),
         symbol,
@@ -138,22 +138,22 @@ document.getElementById('addTransactionForm').addEventListener('submit', (e) => 
         invested: isNaN(investedVal) ? (quantity * buyPriceBRL) : investedVal,
         date: new Date().toISOString()
     };
-    
+
     transactions.push(newTx);
     saveData();
     e.target.reset();
-    fetchMarketPrices(); 
+    fetchMarketPrices();
 });
 
 window.removeTransaction = (id) => {
-    if(confirm('Tem certeza que deseja apagar este depósito específico?')) {
+    if (confirm('Tem certeza que deseja apagar este depósito específico?')) {
         transactions = transactions.filter(t => t.id !== id);
         saveData();
     }
 };
 
 window.removeSingleAsset = (symbol) => {
-    if(confirm(`Tem certeza que deseja apagar TODOS os registros de ${symbol}?`)) {
+    if (confirm(`Tem certeza que deseja apagar TODOS os registros de ${symbol}?`)) {
         transactions = transactions.filter(t => t.symbol !== symbol);
         delete expandedRows[symbol];
         saveData();
@@ -167,11 +167,11 @@ const saveData = async () => {
     } catch (error) {
         console.error("Erro ao salvar no Firebase:", error);
     }
-    
+
     // Backup local
     localStorage.setItem('cryptoTransactions', JSON.stringify(transactions));
     localStorage.setItem('cryptoExpandedRows', JSON.stringify(expandedRows));
-    
+
     updateDashboard();
     renderTable();
 };
@@ -183,12 +183,32 @@ const loadDataFromFirebase = async () => {
 
         if (docSnap.exists()) {
             const data = docSnap.data();
-            transactions = data.transactions || [];
-            expandedRows = data.expandedRows || {};
+            // Usa dados do Firebase se houver transações lá
+            if (data.transactions && data.transactions.length > 0) {
+                transactions = data.transactions;
+                expandedRows = data.expandedRows || {};
+            } else {
+                // Firebase está vazio: migra dados do localStorage (primeira configuração)
+                const localTxs = JSON.parse(localStorage.getItem('cryptoTransactions')) || [];
+                const localExp = JSON.parse(localStorage.getItem('cryptoExpandedRows')) || {};
+                transactions = localTxs;
+                expandedRows = localExp;
+                // Salva dados migrados no Firebase
+                if (localTxs.length > 0) {
+                    await setDoc(docRef, { transactions, expandedRows }, { merge: true });
+                    console.log(`✅ ${localTxs.length} transações migradas do localStorage para o Firebase.`);
+                }
+            }
         } else {
-            transactions = [];
-            expandedRows = {};
+            // Documento não existe: tenta migrar do localStorage
+            const localTxs = JSON.parse(localStorage.getItem('cryptoTransactions')) || [];
+            const localExp = JSON.parse(localStorage.getItem('cryptoExpandedRows')) || {};
+            transactions = localTxs;
+            expandedRows = localExp;
             await setDoc(docRef, { transactions, expandedRows });
+            if (localTxs.length > 0) {
+                console.log(`✅ ${localTxs.length} transações migradas do localStorage para o Firebase.`);
+            }
         }
     } catch (error) {
         console.error("Erro ao carregar do Firebase:", error);
@@ -209,12 +229,12 @@ window.toggleRow = (symbol) => {
 // Groups transactions and calculated child deposits
 const getAggregatedPortfolio = () => {
     const portfolioMap = {};
-    
+
     // Sort transactions oldest first
-    const sortedTxs = [...transactions].sort((a,b) => new Date(a.date) - new Date(b.date));
-    
+    const sortedTxs = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+
     sortedTxs.forEach(tx => {
-        if(!portfolioMap[tx.symbol]) {
+        if (!portfolioMap[tx.symbol]) {
             portfolioMap[tx.symbol] = {
                 symbol: tx.symbol,
                 totalQuantity: 0,
@@ -222,10 +242,10 @@ const getAggregatedPortfolio = () => {
                 deposits: []
             };
         }
-        
+
         let actualInvested;
         let actualUnitPrice = tx.buyPriceBRL; // Sempre exatamente o que foi salvo
-        
+
         // Se a propriedade tx.invested existe, significa que foi gerado com a versão nova do sistema
         if (tx.invested !== undefined && tx.invested !== null && !isNaN(tx.invested)) {
             actualInvested = tx.invested;
@@ -238,7 +258,7 @@ const getAggregatedPortfolio = () => {
         const txCurrentValue = tx.quantity * (currentPrice || actualUnitPrice);
         const txProfitLoss = txCurrentValue - actualInvested;
         const txProfitPercent = actualInvested > 0 ? (txProfitLoss / actualInvested) * 100 : 0;
-        
+
         const depositData = {
             ...tx,
             buyPriceBRL: actualUnitPrice,
@@ -247,19 +267,19 @@ const getAggregatedPortfolio = () => {
             txProfitLoss,
             txProfitPercent
         };
-        
+
         portfolioMap[tx.symbol].deposits.push(depositData);
         portfolioMap[tx.symbol].totalQuantity += tx.quantity;
         portfolioMap[tx.symbol].totalInvested += actualInvested;
     });
-    
+
     return Object.values(portfolioMap).map(p => {
         const averageBuyPrice = p.totalInvested / p.totalQuantity;
         const currentPrice = getCoinPrice(p.symbol);
         const currentValue = p.totalQuantity * (currentPrice || averageBuyPrice);
         const profitLoss = currentValue - p.totalInvested;
         const profitLossPercent = p.totalInvested > 0 ? (profitLoss / p.totalInvested) * 100 : 0;
-        
+
         return {
             ...p,
             averageBuyPrice,
@@ -275,29 +295,29 @@ const getAggregatedPortfolio = () => {
 const updateDashboard = () => {
     if (!isDataLoaded) return;
     const portfolio = getAggregatedPortfolio();
-    
+
     let overAllInvested = 0;
     let overAllCurrentValue = 0;
-    
+
     portfolio.forEach(p => {
         overAllInvested += p.totalInvested;
         overAllCurrentValue += p.currentValue;
     });
-    
+
     const overAllProfit = overAllCurrentValue - overAllInvested;
     const overAllProfitPercent = overAllInvested > 0 ? (overAllProfit / overAllInvested) * 100 : 0;
-    
+
     document.getElementById('totalInvested').innerText = formatCurrency(overAllInvested);
     document.getElementById('currentBalance').innerText = formatCurrency(overAllCurrentValue);
-    
+
     const profitEl = document.getElementById('totalProfit');
     const profitBadge = document.getElementById('profitBadge');
     const profitIconWrapper = document.getElementById('profitIconWrapper');
     const profitIcon = document.getElementById('profitIcon');
-    
+
     profitEl.innerText = formatCurrency(overAllProfit);
     profitBadge.innerText = `${overAllProfitPercent > 0 ? '+' : ''}${overAllProfitPercent.toFixed(2)}%`;
-    
+
     if (overAllProfit >= 0) {
         profitEl.className = 'text-positive';
         profitBadge.className = 'badge positive';
@@ -309,7 +329,7 @@ const updateDashboard = () => {
         profitIconWrapper.className = 'icon-wrapper negative-bg text-negative';
         profitIcon.setAttribute('data-lucide', 'trending-down');
     }
-    
+
     lucide.createIcons();
 };
 
@@ -320,9 +340,9 @@ const getStopGainBadges = (percent) => {
                 <span class="stop-badge stop-inactive">25%</span>
                 <span class="stop-badge stop-inactive">30%+</span>`;
     }
-    
+
     let str = `<span class="stop-badge stop-10">10%</span> `;
-    
+
     if (percent >= 25 && percent < 30) {
         str += `<span class="stop-badge stop-25">25%</span> <span class="stop-badge stop-inactive">30%+</span>`;
     } else if (percent >= 30) {
@@ -339,24 +359,24 @@ const renderTable = () => {
     const tbody = document.getElementById('portfolioTableBody');
     const emptyState = document.getElementById('emptyState');
     const portfolio = getAggregatedPortfolio();
-    
+
     tbody.innerHTML = '';
-    
+
     if (portfolio.length === 0) {
         emptyState.classList.remove('hide');
         return;
     }
-    
+
     emptyState.classList.add('hide');
-    
+
     portfolio.forEach(p => {
         // Parent Row
         const isExpanded = !!expandedRows[p.symbol];
         const chevronIcon = isExpanded ? 'chevron-up' : 'chevron-down';
-        
+
         const pPlColorClass = p.profitLoss >= 0 ? 'text-positive' : 'text-negative';
         const pPlSymbol = p.profitLoss > 0 ? '+' : '';
-        
+
         const parentTr = document.createElement('tr');
         parentTr.className = 'parent-row';
         parentTr.innerHTML = `
@@ -397,15 +417,15 @@ const renderTable = () => {
             </td>
         `;
         tbody.appendChild(parentTr);
-        
+
         // Children Rows (Deposits)
         p.deposits.forEach((dep, index) => {
             const childTr = document.createElement('tr');
             childTr.className = `child-row ${isExpanded ? 'open' : ''}`;
-            
+
             const depPlColorClass = dep.txProfitLoss >= 0 ? 'text-positive' : 'text-negative';
             const depPlSymbol = dep.txProfitLoss > 0 ? '+' : '';
-            
+
             let signalText10 = '';
             let signalText25 = '';
             if (dep.txProfitPercent >= 10) {
@@ -418,7 +438,7 @@ const renderTable = () => {
             childTr.innerHTML = `
                 <td></td>
                 <td>
-                    <small class="text-muted">Depósito #${index+1}</small><br>
+                    <small class="text-muted">Depósito #${index + 1}</small><br>
                     <small class="text-muted" style="font-size: 0.75rem">${formatDate(dep.date)}</small>
                 </td>
                 <td>
@@ -461,7 +481,7 @@ const renderTable = () => {
             tbody.appendChild(childTr);
         });
     });
-    
+
     lucide.createIcons();
 };
 
@@ -472,7 +492,7 @@ window.openRecommendation = (depositId) => {
     const portfolio = getAggregatedPortfolio();
     let targetDep = null;
     let targetSymbol = '';
-    
+
     for (let p of portfolio) {
         for (let d of p.deposits) {
             if (d.id === depositId) {
@@ -482,20 +502,20 @@ window.openRecommendation = (depositId) => {
             }
         }
     }
-    
+
     if (!targetDep) return;
-    
+
     const currentPrice = getCoinPrice(targetSymbol);
     const txInvested = targetDep.txInvested;
     const txCurrentValue = targetDep.txCurrentValue;
     const txProfitLoss = targetDep.txProfitLoss;
     const txProfitPercent = targetDep.txProfitPercent;
-    
+
     document.getElementById('modalTitle').innerText = `Estratégia: ${targetSymbol} (Depósito)`;
-    
+
     const content = document.getElementById('modalContent');
     content.innerHTML = '';
-    
+
     if (!currentPrice || currentPrice === 0) {
         content.innerHTML = `<p>Não podemos calcular a recomendação: preço atual do mercado não disponível.</p>`;
     } else if (txProfitLoss <= 0) {
@@ -509,13 +529,13 @@ window.openRecommendation = (depositId) => {
     } else {
         const targetQtdToSellForInitial = txInvested / currentPrice;
         const remainingToKeep = targetDep.quantity - targetQtdToSellForInitial;
-        
+
         let stopMessage = `Seu lucro atual é de <strong>${txProfitPercent.toFixed(2)}%</strong>. `;
-        if(txProfitPercent >= 30) stopMessage += `<span class="highlight">Você ultrapassou o 3º Stop! Lucro Excelente!</span>`;
-        else if(txProfitPercent >= 25) stopMessage += `Você está no 2º Stop Gain (Acima 25%).`;
-        else if(txProfitPercent >= 10) stopMessage += `Você está no 1º Stop Gain (Acima 10%).`;
+        if (txProfitPercent >= 30) stopMessage += `<span class="highlight">Você ultrapassou o 3º Stop! Lucro Excelente!</span>`;
+        else if (txProfitPercent >= 25) stopMessage += `Você está no 2º Stop Gain (Acima 25%).`;
+        else if (txProfitPercent >= 10) stopMessage += `Você está no 1º Stop Gain (Acima 10%).`;
         else stopMessage += `Você tem lucro, mas ainda não bateu o primeiro alvo de 10%.`;
-        
+
         content.innerHTML = `
             <p style="margin-bottom: 1rem; color: var(--text-muted);">${stopMessage}</p>
 
@@ -533,7 +553,7 @@ window.openRecommendation = (depositId) => {
             </div>
         `;
     }
-    
+
     lucide.createIcons();
     modal.classList.add('show');
 };
