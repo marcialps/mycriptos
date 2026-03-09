@@ -409,7 +409,6 @@ const renderTable = () => {
                 <strong>${formatCurrency(p.profitLoss)}</strong><br>
                 <small>${pPlSymbol}${p.profitLossPercent.toFixed(2)}%</small>
             </td>
-            <td></td>
             <td>
                 <button class="btn-danger" title="Apagar Ativo (Todos)" onclick="removeSingleAsset('${p.symbol}')">
                     <i data-lucide="trash-2"></i>
@@ -466,11 +465,6 @@ const renderTable = () => {
                 <td class="${depPlColorClass}">
                     ${formatCurrency(dep.txProfitLoss)}<br>
                     <small>${depPlSymbol}${dep.txProfitPercent.toFixed(2)}%</small>
-                </td>
-                <td>
-                    <button class="btn-recommend" onclick="openRecommendation('${dep.id}')" title="Estratégia para este depósito">
-                        <i data-lucide="target" style="width:14px; height:14px;"></i> Target
-                    </button>
                 </td>
                 <td>
                     <button class="btn-danger" style="padding: 0.2rem" title="Apagar este depósito" onclick="removeTransaction('${dep.id}')">
